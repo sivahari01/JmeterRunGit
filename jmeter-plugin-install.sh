@@ -11,6 +11,11 @@ curl -L http://search.maven.org/remotecontent?filepath=kg/apc/cmdrunner/${JMETER
 echo "Downloading Plugin Manager"
 curl -L https://jmeter-plugins.org/get/ --output ${JMETER_HOME}/lib/ext/jmeter-plugins-manager-${JMETER_PLUGIN_MANAGER_VERSION}.jar
 
+echo "Download property reader"
+curl  -L -o https://www.vinsguru.com/download/87/?tmstv=1727691948
+unzip tag-jmeter-extn-1.1.zip -d  tag-jmeter-extn-1.1
+mv tag-jmeter-extn-1.1/* ${JMETER_HOME}/lib/ext/
+
 # Install Plugin Manager
 java -cp /opt/apache/apache-jmeter-${JMETER_VERSION}/lib/ext/jmeter-plugins-manager-${JMETER_PLUGIN_MANAGER_VERSION}.jar org.jmeterplugins.repository.PluginManagerCMDInstaller
 
