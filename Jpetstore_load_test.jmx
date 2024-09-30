@@ -183,7 +183,7 @@
       </CacheManager>
       <hashTree/>
       <com.tag.jmeter.ext.config.PropertyReader guiclass="TestBeanGUI" testclass="com.tag.jmeter.ext.config.PropertyReader" testname="Property File Reader">
-        <stringProp name="propFilePath">D:\apache-jmeter-5.6.2\JMX\Jpetstore_framework_Suite\config.properties</stringProp>
+        <stringProp name="propFilePath">./config.properties</stringProp>
       </com.tag.jmeter.ext.config.PropertyReader>
       <hashTree/>
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="Account_create" enabled="false">
