@@ -13,7 +13,7 @@ jobs:
     - name: Run JMeter Tests
       uses: ./
       with:
-        test-plan-path: ./S01_SimpleExample.jmx
+        test-plan-path: ./Jpetstore_load_test.jmx
         args: "-e -o ./reports/html/"
         
     - name: Upload Results
