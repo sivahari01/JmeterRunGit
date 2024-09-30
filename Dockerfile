@@ -28,8 +28,4 @@ RUN apk --no-cache add curl ca-certificates openjdk17-jre && \
 # Downloading CMD Runner
 RUN /jmeter-plugin-install.sh
 
-RUN curl  -L -o  curl -L -o tag-jmeter-extn-1.1.jar https://www.vinsguru.com/download/87/?tmstv=1727691948
-    unzip tag-jmeter-extn-1.1.zip -d  tag-jmeter-extn-1.1
-    mv tag-jmeter-extn-1.1/* ${JMETER_HOME}/lib/ext/
-
 ENTRYPOINT [ "/entrypoint.sh" ]
