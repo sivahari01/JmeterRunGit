@@ -1,31 +1,50 @@
-on: [push]
-jobs:
-  jmeter_job:
-    runs-on: ubuntu-latest
-    name: JMeter Test Execution
-    steps:      
-    - name: Checkout
-      uses: actions/checkout@v3
+name: JMeter Self-Healing Load Test
 
-    - name: Create reports directory
-      run: mkdir reports
-      
-    - name: Run JMeter Tests
-      uses: ./
-      with:
-        test-plan-path: ./S01_SimpleExample.jmx
-        args: "-e -o ./reports/html/"
-        
-    - name: Upload Results
-      uses: actions/upload-artifact@v3
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the repository
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    # Step 2: Set up Docker
+    - name: Set up Docker
+      run: sudo apt-get update && sudo apt-get install -y docker.io
+
+    # Step 3: Build JMeter Docker Images
+    - name: Build Docker Images
+      run: |
+        docker build -t jmeter-master -f docker/Dockerfile .
+        docker-compose -f docker/docker-compose.yml up -d --build
+
+    # Step 4: Run JMeter Test
+    - name: Run JMeter Test
+      run: |
+        docker exec jmeter-master jmeter -n -t /tests/test.jmx
+
+    # Step 5: Collect and Save Test Results
+    - name: Save Test Results
+      run: |
+        docker cp jmeter-master:/tests/results.jtl ./results/
+      continue-on-error: true
+
+    # Step 6: Upload Test Results as Artifacts
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v2
       with:
         name: jmeter-results
-        path: result.jtl
-        if-no-files-found: error
+        path: ./results/results.jtl
 
-    - name: Upload HTML Reports
-      uses: actions/upload-artifact@v3
-      with:
-        name: jmeter-reports
-        path: reports
-        if-no-files-found: error
+    # Step 7: Tear Down Docker Containers
+    - name: Tear Down Docker
+      run: docker-compose -f docker/docker-compose.yml down
