@@ -1,0 +1,103 @@
+pipeline {
+    agent any
+
+    environment {
+        JMETER_VERSION = '5.6.3'
+        INSTALL_DIR = "$HOME/jmeter"
+        JMETER_HOME = "$HOME/jmeter/apache-jmeter-${JMETER_VERSION}"
+        PATH = "${JMETER_HOME}/bin:$PATH"
+    }
+
+    stages {
+        stage('Install JMeter') {
+            steps {
+                sh '''
+                # Set JMeter version and install directory
+                JMETER_VERSION="5.6.3"
+                INSTALL_DIR="$HOME/jmeter"
+
+                # Create installation directory
+                mkdir -p "$INSTALL_DIR"
+
+                # Download JMeter binary
+                echo "Downloading Apache JMeter..."
+                curl -L "https://downloads.apache.org//jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz" -o "apache-jmeter-${JMETER_VERSION}.tgz"
+
+                # Extract the downloaded archive
+                echo "Extracting JMeter..."
+                tar -xzf "apache-jmeter-${JMETER_VERSION}.tgz" -C "$INSTALL_DIR"
+
+                # Set environment variables
+                export JMETER_HOME="$INSTALL_DIR/apache-jmeter-${JMETER_VERSION}"
+                export PATH="$JMETER_HOME/bin:$PATH"
+
+                # Verify JMeter installation
+                echo "Verifying JMeter installation..."
+                jmeter -v
+                echo "JMeter installed successfully in $INSTALL_DIR!"
+                '''
+            }
+        }
+
+        stage('Setup Workspace') {
+            steps {
+                sh '''
+                # Workspace setup
+                echo "Current directory:"
+                pwd
+                echo "Listing files:"
+                ls
+                sleep 5
+
+                # Navigate to Jenkins home directory for JMeter
+                cd /var/jenkins_home/jmeter || mkdir -p /var/jenkins_home/jmeter && cd /var/jenkins_home/jmeter
+                cd
+                ls
+
+                # Download and extract JMeter again for project-specific setup
+                curl -O https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz
+                tar -xvzf apache-jmeter-5.6.3.tgz
+                cd apache-jmeter-5.6.3
+                ls
+                '''
+            }
+        }
+
+        stage('Execute JMeter Tests') {
+            steps {
+                sh '''
+                # Navigate to the appropriate directory
+                echo "Navigating to Jenkins workspace for Opencart tests..."
+                ls
+                pwd
+                sleep 5
+                cd /var/jenkins_home/jmeter/apache-jmeter-5.6.3 || exit
+                cd bin || exit
+
+                # Run JMeter tests
+                ./jmeter -n -t /var/jenkins_home/workspace/Jmeter_Setup/JmeterRunGit/Opencart_Search.jmx -l /var/jenkins_home/workspace/Jmeter_Setup/JmeterRunGit/result__$(date +%Y-%m-%d_%H-%M-%S).jtl  -e -o  /var/jenkins_home/workspace/Jmeter_Setup/JmeterRunGit/report_$(date +%Y-%m-%d_%H-%M-%S)
+
+                # Validate and list final outputs
+                ls
+                cd /var/jenkins_home/workspace/Jmeter_Setup || exit
+                ls
+                pwd
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline execution completed!"
+            // Archive the results and reports
+            archiveArtifacts artifacts: '**/result_*.jtl, **/report_*', allowEmptyArchive: true
+        }
+        success {
+            echo "Pipeline executed successfully!"
+        }
+        failure {
+            echo "Pipeline failed. Check the logs for details."
+        }
+    }
+}
