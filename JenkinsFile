@@ -9,6 +9,13 @@ pipeline {
     }
 
     stages {
+        stage('Git clone'){
+            steps{
+                sh '''
+                gti clone https://github.com/sivahari01/JmeterRunGit.git
+                '''
+                }
+         }
         stage('Install JMeter') {
             steps {
                 sh '''
