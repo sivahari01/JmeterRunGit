@@ -98,7 +98,7 @@ pipeline {
         always {
             echo "Pipeline execution completed!"
             // Archive the results and reports
-            archiveArtifacts artifacts: '**/result_*.jtl, **/report_*', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**', allowEmptyArchive: true
         }
         success {
             echo "Pipeline executed successfully!"
